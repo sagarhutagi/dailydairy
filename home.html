@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <form action="{{ url_for('home') }}" method="GET" class="flex items-center space-x-2">
+        <select name="sort" class="bg-gray-800 py-2 px-4 rounded-lg text-gray-300" onchange="this.form.submit()">
+            <option value="latest" {% if request.args.get('sort') == 'latest' %}selected{% endif %}>Latest</option>
+            <option value="oldest" {% if request.args.get('sort') == 'oldest' %}selected{% endif %}>Oldest</option>
+        </select>
+    </form>
+    <form action="{{ url_for('search') }}" method="GET" class="flex space-x-2">
+        <input type="text" name="q" placeholder="Search by title..."
+            class="shadow appearance-none bg-gray-900 border border-gray-600 rounded py-2 px-3 text-gray-200 placeholder-gray-400">
+        <input type="date" name="date" class="shadow appearance-none bg-gray-900 border border-gray-600 rounded py-2 px-3 text-gray-200">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">
+            Search
+        </button>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for entry in entries %}
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+        <div class="flex justify-between items-start mb-4">
+            <h3 class="text-xl font-bold text-gray-100">{{ entry.title }}</h3>
+            <span class="bg-blue-700 text-blue-200 px-2 py-1 rounded">
+                Rating: {{ entry.mood_rating }}/10
+            </span>
+        </div>
+        <p class="text-gray-400 mb-2">{{ entry.date.strftime('%Y-%m-%d') }}</p>
+        <p class="text-gray-300 mb-4">{{ entry.content[:200] }}...</p>
+        <div class="flex flex-wrap gap-2 mb-4">
+            {% for tag in entry.tags %}
+            <span class="bg-gray-600 px-2 py-1 rounded text-sm text-gray-300">{{ tag.name }}</span>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('view_entry', id=entry.id) }}" class="text-blue-400 hover:text-blue-600">Read more</a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="mt-6 flex justify-center space-x-4">
+    <a href="{{ url_for('export', format='pdf') }}"
+        class="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded">
+        Export to PDF
+    </a>
+    <a href="{{ url_for('export', format='csv') }}"
+        class="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded">
+        Export to CSV
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+<!-- templates/signup.html -->
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-md mx-auto bg-gray-800 p-8 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-white mb-6">Create Account</h2>
+    
+    <form method="POST" class="space-y-6" onsubmit="return validateForm()">
+        <div>
+            <label class="block text-gray-300 text-sm font-bold mb-2" for="username">
+                Username
+            </label>
+            <input class="shadow appearance-none border border-gray-600 rounded w-full py-2 px-3 bg-gray-700 text-white leading-tight focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500"
+                   id="username" 
+                   name="username" 
+                   type="text" 
+                   required
+                   minlength="3"
+                   pattern="[a-zA-Z0-9_-]+"
+                   title="Username can only contain letters, numbers, underscores, and hyphens">
+            <p class="text-sm text-gray-400 mt-1">Must be at least 3 characters long and contain only letters, numbers, underscores, and hyphens.</p>
+        </div>
+        
+        <div>
+            <label class="block text-gray-300 text-sm font-bold mb-2" for="password">
+                Password
+            </label>
+            <input class="shadow appearance-none border border-gray-600 rounded w-full py-2 px-3 bg-gray-700 text-white leading-tight focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500"
+                   id="password" 
+                   name="password" 
+                   type="password" 
+                   required
+                   minlength="8">
+            <p class="text-sm text-gray-400 mt-1">Must be at least 8 characters long.</p>
+        </div>
+        
+        <div>
+            <label class="block text-gray-300 text-sm font-bold mb-2" for="confirm_password">
+                Confirm Password
+            </label>
+            <input class="shadow appearance-none border border-gray-600 rounded w-full py-2 px-3 bg-gray-700 text-white leading-tight focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500"
+                   id="confirm_password" 
+                   name="confirm_password" 
+                   type="password" 
+                   required>
+        </div>
+        
+        <!-- Password strength indicator -->
+        <div class="hidden" id="password-strength">
+            <div class="h-2 rounded-full bg-gray-700">
+                <div class="h-full rounded-full transition-all duration-300" id="strength-bar"></div>
+            </div>
+            <p class="text-sm mt-1 text-gray-400" id="strength-text"></p>
+        </div>
+        
+        <div class="flex items-center justify-between">
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit">
+                Create Account
+            </button>
+            <a class="inline-block align-baseline font-bold text-sm text-blue-400 hover:text-blue-300"
+               href="{{ url_for('login') }}">
+                Already have an account?
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Password strength checker
+const passwordInput = document.getElementById('password');
+const strengthBar = document.getElementById('strength-bar');
+const strengthText = document.getElementById('strength-text');
+const strengthIndicator = document.getElementById('password-strength');
+
+passwordInput.addEventListener('input', function() {
+    const password = this.value;
+    let strength = 0;
+    let message = '';
+    
+    // Show strength indicator when user starts typing
+    strengthIndicator.classList.remove('hidden');
+    
+    // Length check
+    if (password.length >= 8) strength += 25;
+    
+    // Character variety checks
+    if (password.match(/[a-z]/)) strength += 25;
+    if (password.match(/[A-Z]/)) strength += 25;
+    if (password.match(/[0-9]/)) strength += 25;
+    if (password.match(/[^a-zA-Z0-9]/)) strength += 25;
+    
+    // Cap strength at 100
+    strength = Math.min(100, strength);
+    
+    // Update visual indicator
+    strengthBar.style.width = strength + '%';
+    
+    // Set color and message based on strength
+    if (strength < 25) {
+        strengthBar.className = 'h-full rounded-full bg-red-500';
+        message = 'Very weak';
+    } else if (strength < 50) {
+        strengthBar.className = 'h-full rounded-full bg-orange-500';
+        message = 'Weak';
+    } else if (strength < 75) {
+        strengthBar.className = 'h-full rounded-full bg-yellow-500';
+        message = 'Moderate';
+    } else {
+        strengthBar.className = 'h-full rounded-full bg-green-500';
+        message = 'Strong';
+    }
+    
+    strengthText.textContent = `Password strength: ${message}`;
+});
+
+// Form validation
+function validateForm() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const username = document.getElementById('username').value;
+    
+    // Check username length and characters
+    if (username.length < 3) {
+        alert('Username must be at least 3 characters long');
+        return false;
+    }
+    
+    if (!username.match(/^[a-zA-Z0-9_-]+$/)) {
+        alert('Username can only contain letters, numbers, underscores, and hyphens');
+        return false;
+    }
+    
+    // Check password length
+    if (password.length < 8) {
+        alert('Password must be at least 8 characters long');
+        return false;
+    }
+    
+    // Check if passwords match
+    if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return false;
+    }
+    
+    return true;
+}
+</script>
+{% endblock %}
